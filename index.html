@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>❤️ Unser Countdown ❤️</title>
 
 <style>
+
 *{
     margin:0;
     padding:0;
@@ -13,60 +15,123 @@
 }
 
 body{
-    height:100vh;
-    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+    background:linear-gradient(180deg,#ff7aa2,#ff9cc0,#ffd3e2);
+    min-height:100vh;
+
     display:flex;
     justify-content:center;
     align-items:center;
-    background:linear-gradient(135deg,#ff758c,#ff7eb3,#ffc3a0);
-    font-family:Arial, Helvetica, sans-serif;
-    color:white;
+
+    overflow:hidden;
 }
 
 .container{
-    text-align:center;
-    background:rgba(255,255,255,0.15);
-    backdrop-filter:blur(10px);
-    padding:40px;
+    width:92%;
+    max-width:420px;
+
+    padding:30px 20px;
+
+    background:rgba(255,255,255,.18);
+    backdrop-filter:blur(12px);
+
     border-radius:25px;
-    box-shadow:0 10px 40px rgba(0,0,0,.25);
+
+    text-align:center;
+
+    color:white;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.2);
 }
 
 h1{
-    font-size:3rem;
-    margin-bottom:20px;
+    font-size:2rem;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    opacity:.95;
+    margin-bottom:30px;
+    font-size:1rem;
 }
 
 #countdown{
+
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.time-box{
+
+    background:rgba(255,255,255,.18);
+    border-radius:18px;
+
+    padding:18px 10px;
+}
+
+.value{
+
     font-size:2rem;
-    line-height:1.7;
     font-weight:bold;
 }
 
+.label{
+
+    margin-top:6px;
+    font-size:.9rem;
+}
+
+.message{
+
+    margin-top:30px;
+    font-size:1rem;
+}
+
 .hearts{
+
     position:fixed;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    z-index:-1;
+    inset:0;
+    pointer-events:none;
 }
 
 .heart{
+
     position:absolute;
-    bottom:-50px;
-    color:#fff;
+    bottom:-30px;
+
     animation:float linear infinite;
-    opacity:0.7;
+
+    opacity:.75;
 }
 
 @keyframes float{
+
     from{
         transform:translateY(0) rotate(0deg);
     }
+
     to{
         transform:translateY(-120vh) rotate(360deg);
     }
+
 }
+
+.big-heart{
+
+    font-size:55px;
+    animation:pulse 1.8s infinite;
+    margin-bottom:15px;
+}
+
+@keyframes pulse{
+
+    0%{transform:scale(1);}
+    50%{transform:scale(1.15);}
+    100%{transform:scale(1);}
+
+}
+
 </style>
 </head>
 
@@ -75,65 +140,103 @@ h1{
 <div class="hearts"></div>
 
 <div class="container">
-    <h1>❤️ Bis wir uns wiedersehen ❤️</h1>
 
-    <div id="countdown"></div>
+<div class="big-heart">❤️</div>
 
-    <p style="margin-top:25px;font-size:1.2rem;">
-        Ich freue mich schon auf dich 🥰
-    </p>
+<h1>Bis wir uns wiedersehen</h1>
+
+<div class="subtitle">
+23. Juli 2026 · 15:30 Uhr
+</div>
+
+<div id="countdown"></div>
+
+<div class="message">
+Ich freue mich schon riesig auf dich 🥰
+</div>
+
 </div>
 
 <script>
 
-// Zielzeit
-const target = new Date("2026-07-23T15:30:00").getTime();
+const target=new Date("2026-07-23T15:30:00").getTime();
 
-function updateCountdown(){
+function update(){
 
-    const now = new Date().getTime();
-    const distance = target - now;
+const now=Date.now();
 
-    if(distance <= 0){
-        document.getElementById("countdown").innerHTML =
-        "<h2>❤️ Endlich zusammen! ❤️</h2>";
-        return;
-    }
+const diff=target-now;
 
-    const days = Math.floor(distance/(1000*60*60*24));
-    const hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
-    const minutes = Math.floor((distance%(1000*60*60))/(1000*60));
-    const seconds = Math.floor((distance%(1000*60))/1000);
+if(diff<=0){
 
-    document.getElementById("countdown").innerHTML =
-    `
-    <div>${days} Tage</div>
-    <div>${hours} Stunden</div>
-    <div>${minutes} Minuten</div>
-    <div>${seconds} Sekunden</div>
-    `;
+document.querySelector(".container").innerHTML=
+`
+<div style="font-size:80px;">❤️</div>
+
+<h1>Endlich zusammen!</h1>
+
+<p style="margin-top:20px;font-size:20px;">
+Ich hoffe, wir genießen jede Sekunde zusammen. 🥰
+</p>
+`;
+
+return;
 }
 
-updateCountdown();
-setInterval(updateCountdown,1000);
+const d=Math.floor(diff/86400000);
+const h=Math.floor(diff%86400000/3600000);
+const m=Math.floor(diff%3600000/60000);
+const s=Math.floor(diff%60000/1000);
 
+document.getElementById("countdown").innerHTML=`
 
-// Animierte Herzen
-const hearts = document.querySelector(".hearts");
+<div class="time-box">
+<div class="value">${d}</div>
+<div class="label">Tage</div>
+</div>
 
-for(let i=0;i<40;i++){
+<div class="time-box">
+<div class="value">${h}</div>
+<div class="label">Stunden</div>
+</div>
 
-    const heart=document.createElement("div");
-    heart.classList.add("heart");
+<div class="time-box">
+<div class="value">${m}</div>
+<div class="label">Minuten</div>
+</div>
 
-    heart.innerHTML="❤️";
+<div class="time-box">
+<div class="value">${s}</div>
+<div class="label">Sekunden</div>
+</div>
 
-    heart.style.left=Math.random()*100+"vw";
-    heart.style.fontSize=(15+Math.random()*35)+"px";
-    heart.style.animationDuration=(6+Math.random()*8)+"s";
-    heart.style.animationDelay=Math.random()*8+"s";
+`;
 
-    hearts.appendChild(heart);
+}
+
+update();
+setInterval(update,1000);
+
+const hearts=document.querySelector(".hearts");
+
+for(let i=0;i<35;i++){
+
+const h=document.createElement("div");
+
+h.className="heart";
+
+h.innerHTML=Math.random()>0.5?"❤️":"💕";
+
+h.style.left=Math.random()*100+"vw";
+
+h.style.fontSize=(18+Math.random()*22)+"px";
+
+h.style.animationDuration=(7+Math.random()*7)+"s";
+
+h.style.animationDelay=Math.random()*7+"s";
+
+hearts.appendChild(h);
+
 }
 
 </script>
