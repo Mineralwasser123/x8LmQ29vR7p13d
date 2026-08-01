@@ -1,41 +1,567 @@
 <!DOCTYPE html>
-<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Für dich ❤️</title>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Für dich 💌</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#ffe4ef,#fff7fb);display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden}
-.wrap{max-width:420px;width:92%;text-align:center}
-.envelope{margin:30px auto;width:220px;height:150px;position:relative;cursor:pointer}
-.base{position:absolute;inset:0;background:#ff7ea7;border-radius:0 0 12px 12px}
-.flap{position:absolute;inset:0;background:#ff5b90;clip-path:polygon(0 0,100% 0,50% 58%);transform-origin:top;transition:1s}
-.paper{position:absolute;left:5%;bottom:0;width:90%;height:120%;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#ff4f87;font-size:28px;transition:1s}
-.open .flap{transform:rotateX(180deg)} .open .paper{transform:translateY(-140px)}
-.card,.voucher,#redeem,#final,#truck{display:none}
-.card,.voucher{background:#fff;padding:22px;border-radius:18px;box-shadow:0 10px 25px rgba(0,0,0,.15);margin-top:20px}
-.voucher{background:#fff8d8;border:3px dashed #f2b300}
-button{background:#ff4f87;color:#fff;border:0;padding:14px 28px;border-radius:30px;font-size:18px}
-#truck{position:fixed;left:-180px;bottom:70px;font-size:70px}
-.drive{display:block!important;animation:drive 6s linear forwards}
-@keyframes drive{to{left:110%}}
-.heart,.spark{position:fixed;pointer-events:none}
-@keyframes float{from{transform:translateY(100vh)}to{transform:translateY(-120vh);opacity:0}}
-.type{border-right:2px solid #ff4f87;white-space:pre-wrap}
-</style></head><body><div class="wrap">
-<h2>💌 Eine kleine Überraschung für dich 💌</h2>
-<div class="envelope" id="env"><div class="base"></div><div class="paper">❤️</div><div class="flap"></div></div>
-<div class="card" id="card"><h3>Für dich ❤️</h3><p id="msg" class="type"></p></div>
-<div class="voucher" id="voucher"><h2>🍦 Gutschein 🍦</h2><p>Dieser Gutschein ist gültig für <b>ein Eis deiner Wahl</b> – natürlich mit mir zusammen. 🥰</p></div>
-<div id="redeem"><button onclick="redeem()">🍦 Gutschein einlösen</button></div>
-<div id="final"><h2>❤️ Jetzt musst du ihn nur noch bei mir einlösen. ❤️</h2><p>Ich freue mich schon auf unser nächstes Eis-Date. 🥰🍦</p></div>
-<div id="truck">🍦🚚</div></div>
+  :root{
+    --pink1:#ff9fb2;
+    --pink2:#ff6f91;
+    --peach:#ffc3a0;
+    --lavender:#c9a7ff;
+    --purple:#9b6bff;
+    --cream:#fff6f2;
+    --gold:#ffd76a;
+    --ink:#5a3350;
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    overflow-x:hidden;
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:linear-gradient(135deg,var(--pink1),var(--lavender),var(--peach));
+    background-size:300% 300%;
+    animation:bgFlow 18s ease infinite;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  @keyframes bgFlow{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
+
+  @font-face{
+    font-family:'ScriptFallback';
+    src:local('Brush Script MT'), local('Segoe Script');
+  }
+
+  h1,h2,h3,.script{
+    font-family:'Brush Script MT','Lucida Handwriting','ScriptFallback', cursive;
+  }
+
+  .scene{
+    position:relative;
+    min-height:100svh;
+    width:100%;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:24px 16px 60px;
+    text-align:center;
+    z-index:2;
+  }
+  .scene.active{display:flex;}
+
+  /* floating decorative hearts in background */
+  .floaters{
+    position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;
+  }
+  .floaters span{
+    position:absolute;
+    bottom:-10%;
+    font-size:22px;
+    opacity:.35;
+    animation:floatUp linear infinite;
+    color:#fff;
+  }
+  @keyframes floatUp{
+    0%{transform:translateY(0) rotate(0deg); opacity:0;}
+    10%{opacity:.5;}
+    90%{opacity:.35;}
+    100%{transform:translateY(-115vh) rotate(360deg); opacity:0;}
+  }
+
+  /* ---------- SCENE 1: ENVELOPE ---------- */
+  #scene1{cursor:pointer;}
+  .prompt-text{
+    margin-bottom:36px;
+    font-size:1.15rem;
+    color:#fff;
+    text-shadow:0 2px 10px rgba(0,0,0,.15);
+    letter-spacing:.5px;
+    animation:pulseText 2.4s ease-in-out infinite;
+  }
+  @keyframes pulseText{
+    0%,100%{opacity:.85; transform:translateY(0);}
+    50%{opacity:1; transform:translateY(-4px);}
+  }
+
+  .envelope-wrap{
+    position:relative;
+    width:min(320px, 78vw);
+    aspect-ratio: 320 / 220;
+    animation:hover 3.2s ease-in-out infinite;
+  }
+  @keyframes hover{
+    0%,100%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-10px) rotate(-1deg);}
+  }
+
+  .envelope{
+    position:absolute; inset:0;
+    filter:drop-shadow(0 18px 30px rgba(120,40,90,.35));
+  }
+  .env-body{
+    position:absolute; inset:0;
+    background:linear-gradient(160deg,#fff 0%, #ffe9f0 100%);
+    border-radius:14px;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.6);
+  }
+  .env-shadow-flap{
+    position:absolute; left:0; right:0; top:0; height:100%;
+    background:linear-gradient(180deg, rgba(255,180,200,.6), rgba(255,180,200,0) 60%);
+    border-radius:14px;
+    pointer-events:none;
+  }
+  .env-front-triangle{
+    position:absolute; left:0; right:0; bottom:0; height:62%;
+    background:linear-gradient(135deg, #ffd7e2, #ffc0d4);
+    clip-path: polygon(0 100%, 100% 100%, 50% 30%);
+    border-radius:0 0 14px 14px;
+  }
+  .env-flap{
+    position:absolute; left:0; right:0; top:0; height:58%;
+    background:linear-gradient(135deg, var(--pink2), var(--purple));
+    clip-path: polygon(0 0, 100% 0, 50% 78%);
+    transform-origin:top center;
+    transition:transform 1.1s cubic-bezier(.6,-0.28,.32,1.25);
+    z-index:3;
+    border-radius:14px 14px 0 0;
+  }
+  .envelope.open .env-flap{
+    transform: rotateX(180deg) translateY(2px);
+    z-index:1;
+  }
+  .env-seal{
+    position:absolute; left:50%; top:42%;
+    transform:translate(-50%,-50%);
+    width:54px; height:54px;
+    background:radial-gradient(circle at 35% 30%, var(--gold), #e8a930 70%);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px;
+    box-shadow:0 6px 14px rgba(180,120,20,.4);
+    z-index:4;
+    transition:opacity .3s ease, transform .5s ease;
+  }
+  .envelope.open .env-seal{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.4) rotate(25deg);
+  }
+
+  .letter-peek{
+    position:absolute; left:8%; right:8%; top:6%;
+    height:88%;
+    background:var(--cream);
+    border-radius:8px;
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+    transform:translateY(0);
+    transition:transform 1s cubic-bezier(.2,.8,.2,1) .15s;
+    z-index:2;
+  }
+  .envelope.open .letter-peek{
+    transform:translateY(-78%);
+  }
+
+  /* ---------- SCENE 2: LETTER ---------- */
+  .letter-card{
+    background:linear-gradient(180deg,#fffdfb, #fff3f7);
+    border-radius:22px;
+    padding:34px 26px 30px;
+    width:min(480px, 92vw);
+    box-shadow:0 25px 60px rgba(120,40,90,.28);
+    position:relative;
+    animation:cardIn .7s cubic-bezier(.2,.8,.2,1);
+    border:1px solid rgba(255,255,255,.6);
+  }
+  @keyframes cardIn{
+    from{opacity:0; transform:translateY(40px) scale(.96);}
+    to{opacity:1; transform:translateY(0) scale(1);}
+  }
+  .letter-card::before{
+    content:"";
+    position:absolute; inset:0;
+    border-radius:22px;
+    padding:1px;
+    background:linear-gradient(135deg,var(--pink2),var(--lavender),var(--peach));
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    pointer-events:none;
+    opacity:.6;
+  }
+  .letter-icon{font-size:2.2rem; margin-bottom:6px;}
+  .letter-title{font-size:2.3rem; color:var(--pink2); margin:0 0 18px; line-height:1;}
+
+  #typewriter{
+    min-height:150px;
+    font-size:1.08rem;
+    line-height:1.7;
+    color:var(--ink);
+    text-align:left;
+    white-space:pre-wrap;
+    font-family:'Georgia', 'Times New Roman', serif;
+  }
+  .caret{
+    display:inline-block;
+    width:2px; height:1.1em;
+    background:var(--pink2);
+    vertical-align:-2px;
+    margin-left:2px;
+    animation:blink 0.9s step-start infinite;
+  }
+  @keyframes blink{50%{opacity:0;}}
+
+  .coupon-wrap{
+    margin-top:26px;
+    opacity:0;
+    transform:translateY(18px);
+    transition:opacity .7s ease, transform .7s ease;
+    pointer-events:none;
+  }
+  .coupon-wrap.show{opacity:1; transform:translateY(0); pointer-events:auto;}
+
+  .coupon{
+    position:relative;
+    overflow:hidden;
+    border-radius:18px;
+    padding:22px 18px;
+    background:linear-gradient(135deg, var(--purple), var(--pink2) 55%, var(--peach));
+    color:#fff;
+    box-shadow:0 14px 30px rgba(150,60,120,.35);
+    isolation:isolate;
+  }
+  .coupon::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(2px 2px at 10% 20%, #fff 100%, transparent 60%),
+      radial-gradient(2px 2px at 80% 30%, #fff 100%, transparent 60%),
+      radial-gradient(1.5px 1.5px at 40% 70%, #fff 100%, transparent 60%),
+      radial-gradient(2px 2px at 65% 85%, #fff 100%, transparent 60%),
+      radial-gradient(1.5px 1.5px at 25% 55%, #fff 100%, transparent 60%),
+      radial-gradient(2px 2px at 90% 65%, #fff 100%, transparent 60%),
+      radial-gradient(1.5px 1.5px at 55% 15%, #fff 100%, transparent 60%);
+    opacity:.85;
+    animation:glitter 2.6s linear infinite;
+    mix-blend-mode:screen;
+    z-index:0;
+  }
+  @keyframes glitter{
+    0%{opacity:.3; transform:translateY(0) scale(1);}
+    50%{opacity:.9; transform:translateY(-2px) scale(1.05);}
+    100%{opacity:.3; transform:translateY(0) scale(1);}
+  }
+  .coupon-inner{position:relative; z-index:1;}
+  .coupon-badge{
+    font-size:.72rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    background:rgba(255,255,255,.22);
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:999px;
+    margin-bottom:10px;
+  }
+  .coupon-title{font-size:1.7rem; margin:2px 0 6px; font-family:'Brush Script MT','ScriptFallback',cursive;}
+  .coupon-sub{font-size:.92rem; opacity:.95; margin-bottom:2px;}
+  .coupon-code{
+    margin-top:12px;
+    font-family:monospace;
+    letter-spacing:3px;
+    font-size:.85rem;
+    background:rgba(255,255,255,.18);
+    border:1px dashed rgba(255,255,255,.6);
+    border-radius:10px;
+    padding:8px 10px;
+  }
+
+  .redeem-btn{
+    margin-top:20px;
+    border:none;
+    cursor:pointer;
+    font-size:1.05rem;
+    font-weight:600;
+    color:#fff;
+    background:linear-gradient(135deg,var(--pink2),var(--purple));
+    padding:15px 30px;
+    border-radius:999px;
+    box-shadow:0 12px 24px rgba(160,50,120,.4);
+    transition:transform .2s ease, box-shadow .2s ease;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .redeem-btn:active{transform:scale(.96);}
+  .redeem-btn:hover{transform:translateY(-2px); box-shadow:0 16px 30px rgba(160,50,120,.5);}
+
+  /* ---------- ICE CREAM TRUCK ---------- */
+  .truck-lane{
+    position:fixed;
+    bottom:0; left:0; right:0;
+    height:120px;
+    overflow:visible;
+    pointer-events:none;
+    z-index:40;
+  }
+  .truck{
+    position:absolute;
+    bottom:8px;
+    left:-40vw;
+    font-size:64px;
+    filter:drop-shadow(0 10px 10px rgba(0,0,0,.25));
+    animation:driveAcross 4.6s linear forwards;
+  }
+  @keyframes driveAcross{
+    0%{left:-30vw; transform:scaleX(1);}
+    48%{transform:scaleX(1);}
+    50%{transform:scaleX(1);}
+    100%{left:120vw; transform:scaleX(1);}
+  }
+  .truck .wheels{
+    display:inline-block;
+    animation:wiggle .15s linear infinite;
+  }
+  @keyframes wiggle{
+    0%{transform:translateY(0);}
+    50%{transform:translateY(-1.5px);}
+    100%{transform:translateY(0);}
+  }
+
+  /* ---------- CONFETTI / HEART RAIN ---------- */
+  .fx-layer{
+    position:fixed; inset:0; z-index:35; pointer-events:none; overflow:hidden;
+  }
+  .fx-piece{
+    position:absolute;
+    top:-40px;
+    will-change:transform;
+    animation-name:fall;
+    animation-timing-function:linear;
+    animation-fill-mode:forwards;
+  }
+  @keyframes fall{
+    0%{transform:translateY(0) translateX(0) rotate(0deg); opacity:1;}
+    100%{transform:translateY(112vh) translateX(var(--drift,0px)) rotate(var(--spin,360deg)); opacity:.9;}
+  }
+
+  /* ---------- SCENE 3: FINAL MESSAGE ---------- */
+  #scene3{padding-top:10vh;}
+  .final-emoji{font-size:3.2rem; margin-bottom:6px; animation:popIn .6s cubic-bezier(.2,.8,.2,1);}
+  @keyframes popIn{
+    0%{transform:scale(0); opacity:0;}
+    70%{transform:scale(1.15); opacity:1;}
+    100%{transform:scale(1);}
+  }
+  .final-title{
+    font-size:2.6rem;
+    color:#fff;
+    text-shadow:0 4px 18px rgba(120,20,80,.35);
+    margin:0 0 14px;
+  }
+  .final-text{
+    max-width:480px;
+    color:#fff;
+    font-size:1.08rem;
+    line-height:1.7;
+    text-shadow:0 2px 10px rgba(0,0,0,.15);
+    opacity:0;
+    animation:fadeIn 1s ease forwards .3s;
+  }
+  @keyframes fadeIn{to{opacity:1;}}
+  .final-hearts{margin-top:22px; font-size:1.6rem; letter-spacing:6px;}
+
+  @media (max-width:380px){
+    .letter-title{font-size:1.9rem;}
+    .final-title{font-size:2.1rem;}
+    .coupon-title{font-size:1.4rem;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001s !important; animation-iteration-count:1 !important; transition-duration:.001s !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="floaters" id="floaters"></div>
+
+<!-- SCENE 1: ENVELOPE -->
+<div class="scene active" id="scene1">
+  <div class="prompt-text">Tippe auf den Umschlag ✨</div>
+  <div class="envelope-wrap">
+    <div class="envelope" id="envelope">
+      <div class="env-body"></div>
+      <div class="letter-peek"></div>
+      <div class="env-front-triangle"></div>
+      <div class="env-flap"></div>
+      <div class="env-seal">💌</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE 2: LETTER -->
+<div class="scene" id="scene2">
+  <div class="letter-card">
+    <div class="letter-icon">❤️</div>
+    <h1 class="letter-title">Für dich</h1>
+    <div id="typewriter"></div>
+
+    <div class="coupon-wrap" id="couponWrap">
+      <div class="coupon">
+        <div class="coupon-inner">
+          <span class="coupon-badge">Gutschein</span>
+          <h2 class="coupon-title">1× Lieblingseis 🍦</h2>
+          <div class="coupon-sub">Einzulösen wann immer du Lust hast — ich lade dich ein.</div>
+          <div class="coupon-code">GÜLTIG • UNBEGRENZT • MIT LIEBE</div>
+        </div>
+      </div>
+      <button class="redeem-btn" id="redeemBtn">🎁 Gutschein einlösen</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE 3: FINAL -->
+<div class="scene" id="scene3">
+  <div class="final-emoji">💖</div>
+  <h2 class="final-title">Eingelöst!</h2>
+  <p class="final-text">Ich freue mich schon darauf, mit dir Eis zu essen und den Tag zusammen zu verbringen.<br>Danke, dass es dich gibt.</p>
+  <div class="final-hearts">💗 💕 💓</div>
+</div>
+
+<div class="truck-lane" id="truckLane"></div>
+<div class="fx-layer" id="fxLayer"></div>
+
 <script>
-const text="Ich dachte, wir gönnen uns mal wieder ein leckeres Eis zusammen. 🍦🥰\n\nWeil die schönsten Momente für mich die sind, die wir gemeinsam verbringen. ❤️";
-document.getElementById("env").onclick=()=>{
- env.classList.add("open");hearts();
- setTimeout(()=>{card.style.display="block";type()},1200);
-}
-function type(){let i=0;let e=msg;let t=setInterval(()=>{e.textContent=text.slice(0,++i);if(i>=text.length){clearInterval(t);setTimeout(()=>{voucher.style.display="block";spark();setTimeout(()=>redeem.style.display="block",1200)},600)}},35)}
-function hearts(){for(let i=0;i<35;i++){let d=document.createElement("div");d.className="heart";d.textContent=Math.random()>.5?"❤️":"💕";d.style.left=Math.random()*100+"vw";d.style.bottom="-20px";d.style.fontSize=(18+Math.random()*20)+"px";d.style.animation="float "+(5+Math.random()*3)+"s linear";document.body.appendChild(d);setTimeout(()=>d.remove(),8000)}}
-function spark(){for(let i=0;i<50;i++){let s=document.createElement("div");s.className="spark";s.textContent=["✨","⭐","💖","🌟"][i%4];s.style.left=(innerWidth/2-120+Math.random()*240)+"px";s.style.top=(innerHeight/2+80+Math.random()*80)+"px";s.style.transition="all 1.5s";document.body.appendChild(s);setTimeout(()=>{s.style.transform="translateY(-100px) scale(1.8)";s.style.opacity=0},30);setTimeout(()=>s.remove(),1700)}}
-function redeem(){truck.className="drive";confetti();setTimeout(()=>final.style.display="block",3200)}
-function confetti(){let a=["🎉","🎊","❤️","💕","✨","🍦"];for(let i=0;i<150;i++){let c=document.createElement("div");c.textContent=a[Math.floor(Math.random()*a.length)];c.style.position="fixed";c.style.left=Math.random()*100+"vw";c.style.top="-20px";c.style.transition="transform 5s linear";document.body.appendChild(c);setTimeout(()=>c.style.transform="translateY(120vh) rotate(720deg)",20);setTimeout(()=>c.remove(),5200)}}
-</script></body></html>
+(function(){
+  "use strict";
+
+  /* ============ Personalisierung ============
+     Hier kannst du den Text ganz einfach anpassen.
+  ============================================= */
+  const MESSAGE = "Hey meine Süße,\n\nich wollte dir einfach mal sagen, wie sehr du mein Leben bunter machst. Jeder Tag mit dir fühlt sich an wie ein kleines Geschenk.\n\nAls kleine Überraschung habe ich dir etwas Süßes mitgebracht – natürlich mit Liebe verpackt. 🍦💕";
+
+  /* ---------- Hintergrund-Schweber ---------- */
+  const floaters = document.getElementById('floaters');
+  const floatEmojis = ['💖','💗','✨','💕'];
+  for(let i=0;i<14;i++){
+    const s = document.createElement('span');
+    s.textContent = floatEmojis[i % floatEmojis.length];
+    s.style.left = Math.random()*100 + '%';
+    s.style.fontSize = (14 + Math.random()*18) + 'px';
+    s.style.animationDuration = (10 + Math.random()*10) + 's';
+    s.style.animationDelay = (Math.random()*10) + 's';
+    floaters.appendChild(s);
+  }
+
+  /* ---------- Szene 1 -> 2: Umschlag öffnen ---------- */
+  const envelope = document.getElementById('envelope');
+  const scene1 = document.getElementById('scene1');
+  const scene2 = document.getElementById('scene2');
+  let opened = false;
+
+  scene1.addEventListener('click', function(){
+    if(opened) return;
+    opened = true;
+    envelope.classList.add('open');
+    setTimeout(function(){
+      scene1.classList.remove('active');
+      scene2.classList.add('active');
+      startTypewriter();
+    }, 1300);
+  });
+
+  /* ---------- Schreibmaschinen-Effekt ---------- */
+  const twEl = document.getElementById('typewriter');
+  const couponWrap = document.getElementById('couponWrap');
+
+  function startTypewriter(){
+    let i = 0;
+    const caret = document.createElement('span');
+    caret.className = 'caret';
+
+    function typeNext(){
+      if(i <= MESSAGE.length){
+        twEl.textContent = MESSAGE.slice(0, i);
+        twEl.appendChild(caret);
+        i++;
+        const ch = MESSAGE[i-1];
+        const delay = (ch === '.' || ch === ',') ? 160 : (ch === '\n' ? 220 : 28 + Math.random()*28);
+        setTimeout(typeNext, delay);
+      } else {
+        setTimeout(function(){
+          caret.remove();
+          couponWrap.classList.add('show');
+        }, 400);
+      }
+    }
+    typeNext();
+  }
+
+  /* ---------- Gutschein einlösen ---------- */
+  const redeemBtn = document.getElementById('redeemBtn');
+  const scene3 = document.getElementById('scene3');
+  const truckLane = document.getElementById('truckLane');
+  const fxLayer = document.getElementById('fxLayer');
+  let redeemed = false;
+
+  redeemBtn.addEventListener('click', function(){
+    if(redeemed) return;
+    redeemed = true;
+    redeemBtn.disabled = true;
+    redeemBtn.style.opacity = '.7';
+
+    spawnTruck();
+    spawnConfettiRain();
+
+    setTimeout(function(){
+      scene2.classList.remove('active');
+      scene3.classList.add('active');
+    }, 2200);
+  });
+
+  function spawnTruck(){
+    const truck = document.createElement('div');
+    truck.className = 'truck';
+    truck.innerHTML = '🚚';
+    truckLane.appendChild(truck);
+    setTimeout(function(){ truck.remove(); }, 4700);
+  }
+
+  function spawnConfettiRain(){
+    const pieces = ['🎉','🎊','💖','💗','💕','✨','🍦'];
+    const colors = ['#ff6f91','#c9a7ff','#ffc3a0','#ffd76a','#ff9fb2'];
+    const total = 60;
+    for(let i=0;i<total;i++){
+      setTimeout(function(){
+        const el = document.createElement('div');
+        el.className = 'fx-piece';
+        const useEmoji = Math.random() < 0.55;
+        if(useEmoji){
+          el.textContent = pieces[Math.floor(Math.random()*pieces.length)];
+          el.style.fontSize = (14 + Math.random()*16) + 'px';
+        } else {
+          el.style.width = '8px';
+          el.style.height = '14px';
+          el.style.background = colors[Math.floor(Math.random()*colors.length)];
+          el.style.borderRadius = '2px';
+        }
+        el.style.left = Math.random()*100 + '%';
+        el.style.setProperty('--drift', (Math.random()*160 - 80) + 'px');
+        el.style.setProperty('--spin', (Math.random()*720 - 360) + 'deg');
+        el.style.animationDuration = (2.6 + Math.random()*2) + 's';
+        fxLayer.appendChild(el);
+        setTimeout(function(){ el.remove(); }, 5200);
+      }, i * 35);
+    }
+  }
+
+})();
+</script>
+</body>
+</html>
