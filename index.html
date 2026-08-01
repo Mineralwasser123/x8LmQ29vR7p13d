@@ -1,245 +1,41 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>❤️ Unser Countdown ❤️</title>
-
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Für dich ❤️</title>
 <style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    font-family:Arial, Helvetica, sans-serif;
-    background:linear-gradient(180deg,#ff7aa2,#ff9cc0,#ffd3e2);
-    min-height:100vh;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    overflow:hidden;
-}
-
-.container{
-    width:92%;
-    max-width:420px;
-
-    padding:30px 20px;
-
-    background:rgba(255,255,255,.18);
-    backdrop-filter:blur(12px);
-
-    border-radius:25px;
-
-    text-align:center;
-
-    color:white;
-
-    box-shadow:0 10px 30px rgba(0,0,0,.2);
-}
-
-h1{
-    font-size:2rem;
-    margin-bottom:10px;
-}
-
-.subtitle{
-    opacity:.95;
-    margin-bottom:30px;
-    font-size:1rem;
-}
-
-#countdown{
-
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:15px;
-}
-
-.time-box{
-
-    background:rgba(255,255,255,.18);
-    border-radius:18px;
-
-    padding:18px 10px;
-}
-
-.value{
-
-    font-size:2rem;
-    font-weight:bold;
-}
-
-.label{
-
-    margin-top:6px;
-    font-size:.9rem;
-}
-
-.message{
-
-    margin-top:30px;
-    font-size:1rem;
-}
-
-.hearts{
-
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-}
-
-.heart{
-
-    position:absolute;
-    bottom:-30px;
-
-    animation:float linear infinite;
-
-    opacity:.75;
-}
-
-@keyframes float{
-
-    from{
-        transform:translateY(0) rotate(0deg);
-    }
-
-    to{
-        transform:translateY(-120vh) rotate(360deg);
-    }
-
-}
-
-.big-heart{
-
-    font-size:55px;
-    animation:pulse 1.8s infinite;
-    margin-bottom:15px;
-}
-
-@keyframes pulse{
-
-    0%{transform:scale(1);}
-    50%{transform:scale(1.15);}
-    100%{transform:scale(1);}
-
-}
-
-</style>
-</head>
-
-<body>
-
-<div class="hearts"></div>
-
-<div class="container">
-
-<div class="big-heart">❤️</div>
-
-<h1>Bis wir uns wiedersehen</h1>
-
-<div class="subtitle">
-23. Juli 2026 · 15:30 Uhr
-</div>
-
-<div id="countdown"></div>
-
-<div class="message">
-Ich freue mich schon riesig auf dich 🥰
-</div>
-
-</div>
-
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#ffe4ef,#fff7fb);display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden}
+.wrap{max-width:420px;width:92%;text-align:center}
+.envelope{margin:30px auto;width:220px;height:150px;position:relative;cursor:pointer}
+.base{position:absolute;inset:0;background:#ff7ea7;border-radius:0 0 12px 12px}
+.flap{position:absolute;inset:0;background:#ff5b90;clip-path:polygon(0 0,100% 0,50% 58%);transform-origin:top;transition:1s}
+.paper{position:absolute;left:5%;bottom:0;width:90%;height:120%;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#ff4f87;font-size:28px;transition:1s}
+.open .flap{transform:rotateX(180deg)} .open .paper{transform:translateY(-140px)}
+.card,.voucher,#redeem,#final,#truck{display:none}
+.card,.voucher{background:#fff;padding:22px;border-radius:18px;box-shadow:0 10px 25px rgba(0,0,0,.15);margin-top:20px}
+.voucher{background:#fff8d8;border:3px dashed #f2b300}
+button{background:#ff4f87;color:#fff;border:0;padding:14px 28px;border-radius:30px;font-size:18px}
+#truck{position:fixed;left:-180px;bottom:70px;font-size:70px}
+.drive{display:block!important;animation:drive 6s linear forwards}
+@keyframes drive{to{left:110%}}
+.heart,.spark{position:fixed;pointer-events:none}
+@keyframes float{from{transform:translateY(100vh)}to{transform:translateY(-120vh);opacity:0}}
+.type{border-right:2px solid #ff4f87;white-space:pre-wrap}
+</style></head><body><div class="wrap">
+<h2>💌 Eine kleine Überraschung für dich 💌</h2>
+<div class="envelope" id="env"><div class="base"></div><div class="paper">❤️</div><div class="flap"></div></div>
+<div class="card" id="card"><h3>Für dich ❤️</h3><p id="msg" class="type"></p></div>
+<div class="voucher" id="voucher"><h2>🍦 Gutschein 🍦</h2><p>Dieser Gutschein ist gültig für <b>ein Eis deiner Wahl</b> – natürlich mit mir zusammen. 🥰</p></div>
+<div id="redeem"><button onclick="redeem()">🍦 Gutschein einlösen</button></div>
+<div id="final"><h2>❤️ Jetzt musst du ihn nur noch bei mir einlösen. ❤️</h2><p>Ich freue mich schon auf unser nächstes Eis-Date. 🥰🍦</p></div>
+<div id="truck">🍦🚚</div></div>
 <script>
-
-const target=new Date("2026-07-23T15:30:00").getTime();
-
-function update(){
-
-const now=Date.now();
-
-const diff=target-now;
-
-if(diff<=0){
-
-document.querySelector(".container").innerHTML=
-`
-<div style="font-size:80px;">❤️</div>
-
-<h1>Endlich zusammen!</h1>
-
-<p style="margin-top:20px;font-size:20px;">
-Ich hoffe, wir genießen jede Sekunde zusammen. 🥰
-</p>
-`;
-
-return;
+const text="Ich dachte, wir gönnen uns mal wieder ein leckeres Eis zusammen. 🍦🥰\n\nWeil die schönsten Momente für mich die sind, die wir gemeinsam verbringen. ❤️";
+document.getElementById("env").onclick=()=>{
+ env.classList.add("open");hearts();
+ setTimeout(()=>{card.style.display="block";type()},1200);
 }
-
-const d=Math.floor(diff/86400000);
-const h=Math.floor(diff%86400000/3600000);
-const m=Math.floor(diff%3600000/60000);
-const s=Math.floor(diff%60000/1000);
-
-document.getElementById("countdown").innerHTML=`
-
-<div class="time-box">
-<div class="value">${d}</div>
-<div class="label">Tage</div>
-</div>
-
-<div class="time-box">
-<div class="value">${h}</div>
-<div class="label">Stunden</div>
-</div>
-
-<div class="time-box">
-<div class="value">${m}</div>
-<div class="label">Minuten</div>
-</div>
-
-<div class="time-box">
-<div class="value">${s}</div>
-<div class="label">Sekunden</div>
-</div>
-
-`;
-
-}
-
-update();
-setInterval(update,1000);
-
-const hearts=document.querySelector(".hearts");
-
-for(let i=0;i<35;i++){
-
-const h=document.createElement("div");
-
-h.className="heart";
-
-h.innerHTML=Math.random()>0.5?"❤️":"💕";
-
-h.style.left=Math.random()*100+"vw";
-
-h.style.fontSize=(18+Math.random()*22)+"px";
-
-h.style.animationDuration=(7+Math.random()*7)+"s";
-
-h.style.animationDelay=Math.random()*7+"s";
-
-hearts.appendChild(h);
-
-}
-
-</script>
-
-</body>
-</html>
+function type(){let i=0;let e=msg;let t=setInterval(()=>{e.textContent=text.slice(0,++i);if(i>=text.length){clearInterval(t);setTimeout(()=>{voucher.style.display="block";spark();setTimeout(()=>redeem.style.display="block",1200)},600)}},35)}
+function hearts(){for(let i=0;i<35;i++){let d=document.createElement("div");d.className="heart";d.textContent=Math.random()>.5?"❤️":"💕";d.style.left=Math.random()*100+"vw";d.style.bottom="-20px";d.style.fontSize=(18+Math.random()*20)+"px";d.style.animation="float "+(5+Math.random()*3)+"s linear";document.body.appendChild(d);setTimeout(()=>d.remove(),8000)}}
+function spark(){for(let i=0;i<50;i++){let s=document.createElement("div");s.className="spark";s.textContent=["✨","⭐","💖","🌟"][i%4];s.style.left=(innerWidth/2-120+Math.random()*240)+"px";s.style.top=(innerHeight/2+80+Math.random()*80)+"px";s.style.transition="all 1.5s";document.body.appendChild(s);setTimeout(()=>{s.style.transform="translateY(-100px) scale(1.8)";s.style.opacity=0},30);setTimeout(()=>s.remove(),1700)}}
+function redeem(){truck.className="drive";confetti();setTimeout(()=>final.style.display="block",3200)}
+function confetti(){let a=["🎉","🎊","❤️","💕","✨","🍦"];for(let i=0;i<150;i++){let c=document.createElement("div");c.textContent=a[Math.floor(Math.random()*a.length)];c.style.position="fixed";c.style.left=Math.random()*100+"vw";c.style.top="-20px";c.style.transition="transform 5s linear";document.body.appendChild(c);setTimeout(()=>c.style.transform="translateY(120vh) rotate(720deg)",20);setTimeout(()=>c.remove(),5200)}}
+</script></body></html>
